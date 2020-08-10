@@ -64,7 +64,7 @@ const string Version = "";
 
 /// Our fancy logging facility. The trick here is to replace cin.rdbuf() and
 /// cout.rdbuf() with two Tie objects that tie cin and cout to a file stream. We
-/// can toggle the logging of std::cout and std:cin at runtime whilst preserving
+/// can toggle the logging of std::cout and std::cin at runtime whilst preserving
 /// usual I/O functionality, all without changing a single line of code!
 /// Idea from http://groups.google.com/group/comp.lang.c++/msg/1d941c0f26ea0d81
 
@@ -99,7 +99,7 @@ class Logger {
   Tie in, out;
 
 public:
-  static void start(const std::string& fname) {
+  static void start(const string& fname) {
 
     static Logger l;
 
@@ -155,7 +155,7 @@ const string engine_info(bool to_uci) {
 
 /// compiler_info() returns a string trying to describe the compiler we use
 
-const std::string compiler_info() {
+const string compiler_info() {
 
   #define stringify2(x) #x
   #define stringify(x) stringify2(x)
@@ -169,7 +169,7 @@ const std::string compiler_info() {
 /// _WIN32             Building on Windows (any)
 /// _WIN64             Building on Windows 64 bit
 
-  std::string compiler = "\nCompiled by ";
+  string compiler = "\nCompiled by ";
 
   #ifdef __clang__
      compiler += "clang++ ";
@@ -245,7 +245,7 @@ const std::string compiler_info() {
 
 
 /// Debug functions used mainly to collect run-time statistics
-static std::atomic<int64_t> hits[2], means[2];
+static atomic<int64_t> hits[2], means[2];
 
 void dbg_hit_on(bool b) { ++hits[0]; if (b) ++hits[1]; }
 void dbg_hit_on(bool c, bool b) { if (c) dbg_hit_on(b); }
@@ -266,9 +266,9 @@ void dbg_print() {
 /// Used to serialize access to std::cout to avoid multiple threads writing at
 /// the same time.
 
-std::ostream& operator<<(std::ostream& os, SyncCout sc) {
+ostream& operator<<(ostream& os, SyncCout sc) {
 
-  static std::mutex m;
+  static mutex m;
 
   if (sc == IO_LOCK)
       m.lock();
@@ -281,7 +281,7 @@ std::ostream& operator<<(std::ostream& os, SyncCout sc) {
 
 
 /// Trampoline helper to avoid moving Logger to misc.h
-void start_logger(const std::string& fname) { Logger::start(fname); }
+void start_logger(const string& fname) { Logger::start(fname); }
 
 
 /// prefetch() preloads the given address in L1/L2 cache. This is a non-blocking
@@ -445,8 +445,8 @@ void aligned_ttmem_free(void* mem) {
   if (mem && !VirtualFree(mem, 0, MEM_RELEASE))
   {
       DWORD err = GetLastError();
-      std::cerr << "Failed to free transposition table. Error code: 0x" <<
-          std::hex << err << std::dec << std::endl;
+      cerr << "Failed to free transposition table. Error code: 0x" <<
+              hex << err << dec << endl;
       exit(EXIT_FAILURE);
   }
 }
@@ -519,7 +519,7 @@ int best_group(size_t idx) {
 
   free(buffer);
 
-  std::vector<int> groups;
+  vector<int> groups;
 
   // Run as many threads as possible on the same node until core limit is
   // reached, then move on filling the next node.

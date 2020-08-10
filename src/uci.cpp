@@ -65,7 +65,7 @@ namespace {
     else
         return;
 
-    states = StateListPtr(new std::deque<StateInfo>(1)); // Drop old and create a new one
+    states = StateListPtr(new deque<StateInfo>(1)); // Drop old and create a new one
     pos.set(fen, Options["UCI_Chess960"], &states->back(), Threads.main());
 
     // Parse move list (if any)
@@ -81,7 +81,7 @@ namespace {
 
   void trace_eval(Position& pos) {
 
-    StateListPtr states(new std::deque<StateInfo>(1));
+    StateListPtr states(new deque<StateInfo>(1));
     Position p;
     p.set(pos.fen(), Options["UCI_Chess960"], &states->back(), Threads.main());
 
@@ -200,7 +200,7 @@ namespace {
   int win_rate_model(Value v, int ply) {
 
      // The model captures only up to 240 plies, so limit input (and rescale)
-     double m = std::min(240, ply) / 64.0;
+     double m = min(240, ply) / 64.0;
 
      // Coefficients of a 3rd order polynomial fit based on fishtest data
      // for two parameters needed to transform eval to the argument of a
@@ -214,7 +214,7 @@ namespace {
      double x = Utility::clamp(double(100 * v) / PawnValueEg, -1000.0, 1000.0);
 
      // Return win rate in per mille (rounded to nearest)
-     return int(0.5 + 1000 / (1 + std::exp((a - x) / b)));
+     return int(0.5 + 1000 / (1 + exp((a - x) / b)));
   }
 
 } // namespace
@@ -230,12 +230,12 @@ void UCI::loop(int argc, char* argv[]) {
 
   Position pos;
   string token, cmd;
-  StateListPtr states(new std::deque<StateInfo>(1));
+  StateListPtr states(new deque<StateInfo>(1));
 
   pos.set(StartFEN, false, &states->back(), Threads.main());
 
   for (int i = 1; i < argc; ++i)
-      cmd += std::string(argv[i]) + " ";
+      cmd += string(argv[i]) + " ";
 
   do {
       if (argc == 1 && !getline(cin, cmd)) // Block here waiting for input or EOF
@@ -322,8 +322,8 @@ string UCI::wdl(Value v, int ply) {
 
 /// UCI::square() converts a Square to a string in algebraic notation (g1, a7, etc.)
 
-std::string UCI::square(Square s) {
-  return std::string{ char('a' + file_of(s)), char('1' + rank_of(s)) };
+string UCI::square(Square s) {
+  return {char('a' + file_of(s)), char('1' + rank_of(s))};
 }
 
 
