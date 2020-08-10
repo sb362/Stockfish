@@ -65,7 +65,7 @@ namespace {
     else
         return;
 
-    states = StateListPtr(new deque<StateInfo>(1)); // Drop old and create a new one
+    states = make_unique<StateList>(1); // Drop old and create a new one
     pos.set(fen, Options["UCI_Chess960"], &states->back(), Threads.main());
 
     // Parse move list (if any)
@@ -230,7 +230,7 @@ void UCI::loop(int argc, char* argv[]) {
 
   Position pos;
   string token, cmd;
-  StateListPtr states(new deque<StateInfo>(1));
+  StateListPtr states = make_unique<StateList>(1);
 
   pos.set(StartFEN, false, &states->back(), Threads.main());
 
