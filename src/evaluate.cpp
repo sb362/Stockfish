@@ -803,8 +803,8 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::clamp(complexity + 50, -abs(mg), 0);
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+    int u = ((mg > 0) - (mg < 0)) * std::clamp(complexity + 50, -std::abs(mg), 0);
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -std::abs(eg));
 
     mg += u;
     eg += v;
@@ -880,7 +880,7 @@ namespace {
 
     // Early exit if score is high
     auto lazy_skip = [&](Value lazyThreshold) {
-        return abs(mg_value(score) + eg_value(score)) / 2 > lazyThreshold + pos.non_pawn_material() / 64;
+        return std::abs(mg_value(score) + eg_value(score)) / 2 > lazyThreshold + pos.non_pawn_material() / 64;
     };
 
     if (lazy_skip(LazyThreshold1))
@@ -940,11 +940,11 @@ make_v:
 Value Eval::evaluate(const Position& pos) {
 
   bool classical = !Eval::useNNUE
-                ||  abs(eg_value(pos.psq_score())) * 16 > NNUEThreshold1 * (16 + pos.rule50_count());
+                ||  std::abs(eg_value(pos.psq_score())) * 16 > NNUEThreshold1 * (16 + pos.rule50_count());
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
                       : NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
-  if (classical && Eval::useNNUE && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
+  if (classical && Eval::useNNUE && std::abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
       v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
   // Damp down the evaluation linearly when shuffling

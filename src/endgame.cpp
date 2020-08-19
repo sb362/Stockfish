@@ -35,7 +35,7 @@ namespace {
   // Used to drive the king towards A1H8 corners in KBN vs K endgames.
   // Values range from 0 on A8H1 diagonal to 7 in A1H8 corners
   inline int push_to_corner(Square s) {
-      return abs(7 - rank_of(s) - file_of(s));
+      return std::abs(7 - rank_of(s) - file_of(s));
   }
 
   // Drive a piece close to or away from another piece
@@ -141,7 +141,7 @@ Value Endgame<KBNK>::operator()(const Position& pos) const {
                 + push_close(strongKing, weakKing)
                 + 420 * push_to_corner(opposite_colors(strongBishop, SQ_A1) ? flip_file(weakKing) : weakKing);
 
-  assert(abs(result) < VALUE_TB_WIN_IN_MAX_PLY);
+  assert(std::abs(result) < VALUE_TB_WIN_IN_MAX_PLY);
   return strongSide == pos.side_to_move() ? result : -result;
 }
 

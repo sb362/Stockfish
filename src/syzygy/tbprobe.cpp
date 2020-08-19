@@ -264,7 +264,7 @@ public:
         {
             std::cerr << "MapViewOfFile() failed, name = " << fname
                       << ", error = " << GetLastError() << std::endl;
-            exit(EXIT_FAILURE);
+            std::exit(EXIT_FAILURE);
         }
 #endif
         uint8_t* data = (uint8_t*)*baseAddress;
@@ -272,7 +272,7 @@ public:
         constexpr uint8_t Magics[][4] = { { 0xD7, 0x66, 0x0C, 0xA5 },
                                           { 0x71, 0xE8, 0x23, 0x5D } };
 
-        if (memcmp(data, Magics[type == WDL], 4))
+        if (std::memcmp(data, Magics[type == WDL], 4))
         {
             std::cerr << "Corrupted table in file " << fname << std::endl;
             unmap(*baseAddress, *mapping);
@@ -457,7 +457,7 @@ public:
     }
 
     void clear() {
-        memset(hashTable, 0, sizeof(hashTable));
+        std::memset(hashTable, 0, sizeof(hashTable));
         wdlTable.clear();
         dtzTable.clear();
     }

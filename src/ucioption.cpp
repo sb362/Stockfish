@@ -28,8 +28,6 @@
 #include "uci.h"
 #include "syzygy/tbprobe.h"
 
-using std::string;
-
 UCI::OptionsMap Options; // Global object
 
 namespace UCI {
@@ -44,10 +42,10 @@ void on_use_NNUE(const Option& ) { Eval::init_NNUE(); }
 void on_eval_file(const Option& ) { Eval::init_NNUE(); }
 
 /// Our case insensitive less() function as required by UCI protocol
-bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
+bool CaseInsensitiveLess::operator() (const std::string& s1, const std::string& s2) const {
 
   return std::lexicographical_compare(s1.begin(), s1.end(), s2.begin(), s2.end(),
-         [](char c1, char c2) { return tolower(c1) < tolower(c2); });
+         [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
 }
 
 
@@ -101,7 +99,7 @@ std::ostream& operator<<(std::ostream& os, const OptionsMap& om) {
                   os << " default " << o.defaultValue;
 
               if (o.type == "spin")
-                  os << " default " << int(stof(o.defaultValue))
+                  os << " default " << int(std::stof(o.defaultValue))
                      << " min "     << o.min
                      << " max "     << o.max;
 
@@ -131,7 +129,7 @@ Option::Option(const char* v, const char* cur, OnChange f) : type("combo"), min(
 
 Option::operator double() const {
   assert(type == "check" || type == "spin");
-  return (type == "spin" ? stof(currentValue) : currentValue == "true");
+  return (type == "spin" ? std::stof(currentValue) : currentValue == "true");
 }
 
 Option::operator std::string() const {
@@ -161,19 +159,19 @@ void Option::operator<<(const Option& o) {
 /// the GUI to check for option's limits, but we could receive the new value
 /// from the user by console window, so let's check the bounds anyway.
 
-Option& Option::operator=(const string& v) {
+Option& Option::operator=(const std::string& v) {
 
   assert(!type.empty());
 
   if (   (type != "button" && v.empty())
       || (type == "check" && v != "true" && v != "false")
-      || (type == "spin" && (stof(v) < min || stof(v) > max)))
+      || (type == "spin" && (std::stof(v) < min || std::stof(v) > max)))
       return *this;
 
   if (type == "combo")
   {
       OptionsMap comboMap; // To have case insensitive compare
-      string token;
+      std::string token;
       std::istringstream ss(defaultValue);
       while (ss >> token)
           comboMap[token] << Option();

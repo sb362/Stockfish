@@ -27,6 +27,7 @@
 #endif
 
 #include <windows.h>
+
 // The needed Windows API for processor groups could be missed from old Windows
 // versions, so instead of calling them directly (forcing the linker to resolve
 // the calls at compile time), try to load them at runtime. To do this we need
@@ -59,30 +60,28 @@ typedef bool(*fun3_t)(HANDLE, CONST GROUP_AFFINITY*, PGROUP_AFFINITY);
 #include "misc.h"
 #include "thread.h"
 
-using namespace std;
-
 namespace {
 
 /// Version number. If Version is left empty, then compile date in the format
 /// DD-MM-YY and show in engine_info.
-const string Version = "";
+const std::string Version = "";
 
 /// Our fancy logging facility. The trick here is to replace cin.rdbuf() and
 /// cout.rdbuf() with two Tie objects that tie cin and cout to a file stream. We
-/// can toggle the logging of std::cout and std:cin at runtime whilst preserving
+/// can toggle the logging of std::cout and std::cin at runtime whilst preserving
 /// usual I/O functionality, all without changing a single line of code!
 /// Idea from http://groups.google.com/group/comp.lang.c++/msg/1d941c0f26ea0d81
 
-struct Tie: public streambuf { // MSVC requires split streambuf for cin and cout
+struct Tie: public std::streambuf { // MSVC requires split streambuf for cin and cout
 
-  Tie(streambuf* b, streambuf* l) : buf(b), logBuf(l) {}
+  Tie(std::streambuf* b, std::streambuf* l) : buf(b), logBuf(l) {}
 
   int sync() override { return logBuf->pubsync(), buf->pubsync(); }
   int overflow(int c) override { return log(buf->sputc((char)c), "<< "); }
   int underflow() override { return buf->sgetc(); }
   int uflow() override { return log(buf->sbumpc(), ">> "); }
 
-  streambuf *buf, *logBuf;
+  std::streambuf *buf, *logBuf;
 
   int log(int c, const char* prefix) {
 
@@ -97,10 +96,10 @@ struct Tie: public streambuf { // MSVC requires split streambuf for cin and cout
 
 class Logger {
 
-  Logger() : in(cin.rdbuf(), file.rdbuf()), out(cout.rdbuf(), file.rdbuf()) {}
+  Logger() : in(std::cin.rdbuf(), file.rdbuf()), out(std::cout.rdbuf(), file.rdbuf()) {}
  ~Logger() { start(""); }
 
-  ofstream file;
+  std::ofstream file;
   Tie in, out;
 
 public:
@@ -110,21 +109,21 @@ public:
 
     if (!fname.empty() && !l.file.is_open())
     {
-        l.file.open(fname, ifstream::out);
+        l.file.open(fname, std::ifstream::out);
 
         if (!l.file.is_open())
         {
-            cerr << "Unable to open debug log file " << fname << endl;
-            exit(EXIT_FAILURE);
+            std::cerr << "Unable to open debug log file " << fname << std::endl;
+            std::exit(EXIT_FAILURE);
         }
 
-        cin.rdbuf(&l.in);
-        cout.rdbuf(&l.out);
+        std::cin.rdbuf(&l.in);
+        std::cout.rdbuf(&l.out);
     }
     else if (fname.empty() && l.file.is_open())
     {
-        cout.rdbuf(l.out.buf);
-        cin.rdbuf(l.in.buf);
+        std::cout.rdbuf(l.out.buf);
+        std::cin.rdbuf(l.in.buf);
         l.file.close();
     }
   }
@@ -137,18 +136,18 @@ public:
 /// the program was compiled) or "Stockfish <Version>", depending on whether
 /// Version is empty.
 
-const string engine_info(bool to_uci) {
+const std::string engine_info(bool to_uci) {
 
-  const string months("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec");
-  string month, day, year;
-  stringstream ss, date(__DATE__); // From compiler, format is "Sep 21 2008"
+  const std::string months("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec");
+  std::string month, day, year;
+  std::stringstream ss, date(__DATE__); // From compiler, format is "Sep 21 2008"
 
-  ss << "Stockfish " << Version << setfill('0');
+  ss << "Stockfish " << Version << std::setfill('0');
 
   if (Version.empty())
   {
       date >> month >> day >> year;
-      ss << setw(2) << day << setw(2) << (1 + months.find(month) / 4) << year.substr(2);
+      ss << std::setw(2) << day << std::setw(2) << (1 + months.find(month) / 4) << year.substr(2);
   }
 
   ss << (to_uci  ? "\nid author ": " by ")
@@ -272,12 +271,12 @@ void dbg_mean_of(int v) { ++means[0]; means[1] += v; }
 void dbg_print() {
 
   if (hits[0])
-      cerr << "Total " << hits[0] << " Hits " << hits[1]
-           << " hit rate (%) " << 100 * hits[1] / hits[0] << endl;
+      std::cerr << "Total " << hits[0] << " Hits " << hits[1]
+                << " hit rate (%) " << 100 * hits[1] / hits[0] << std::endl;
 
   if (means[0])
-      cerr << "Total " << means[0] << " Mean "
-           << (double)means[1] / means[0] << endl;
+      std::cerr << "Total " << means[0] << " Mean "
+                << (double)means[1] / means[0] << std::endl;
 }
 
 
@@ -450,7 +449,7 @@ void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
 
   constexpr size_t alignment = 64; // assumed cache line size
   size_t size = allocSize + alignment - 1; // allocate some extra space
-  mem = malloc(size);
+  mem = std::malloc(size);
   void* ret = reinterpret_cast<void*>((uintptr_t(mem) + alignment - 1) & ~uintptr_t(alignment - 1));
   return ret;
 }
@@ -469,14 +468,14 @@ void aligned_ttmem_free(void* mem) {
       DWORD err = GetLastError();
       std::cerr << "Failed to free transposition table. Error code: 0x" <<
           std::hex << err << std::dec << std::endl;
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
   }
 }
 
 #else
 
 void aligned_ttmem_free(void *mem) {
-  free(mem);
+  std::free(mem);
 }
 
 #endif
@@ -514,12 +513,12 @@ int best_group(size_t idx) {
 
   // Once we know returnLength, allocate the buffer
   SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *buffer, *ptr;
-  ptr = buffer = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*)malloc(returnLength);
+  ptr = buffer = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*)std::malloc(returnLength);
 
   // Second call, now we expect to succeed
   if (!fun1(RelationAll, buffer, &returnLength))
   {
-      free(buffer);
+      std::free(buffer);
       return -1;
   }
 
@@ -539,7 +538,7 @@ int best_group(size_t idx) {
       ptr = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*)(((char*)ptr) + ptr->Size);
   }
 
-  free(buffer);
+  std::free(buffer);
 
   std::vector<int> groups;
 
