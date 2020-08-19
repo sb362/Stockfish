@@ -218,7 +218,7 @@ public:
         if (statbuf.st_size % 64 != 16)
         {
             std::cerr << "Corrupt tablebase file " << fname << std::endl;
-            exit(EXIT_FAILURE);
+            std::exit(EXIT_FAILURE);
         }
 
         *mapping = statbuf.st_size;
@@ -229,7 +229,7 @@ public:
         if (*baseAddress == MAP_FAILED)
         {
             std::cerr << "Could not mmap() " << fname << std::endl;
-            exit(EXIT_FAILURE);
+            std::exit(EXIT_FAILURE);
         }
 #else
         // Note FILE_FLAG_RANDOM_ACCESS is only a hint to Windows and as such may get ignored.
@@ -245,7 +245,7 @@ public:
         if (size_low % 64 != 16)
         {
             std::cerr << "Corrupt tablebase file " << fname << std::endl;
-            exit(EXIT_FAILURE);
+            std::exit(EXIT_FAILURE);
         }
 
         HANDLE mmap = CreateFileMapping(fd, nullptr, PAGE_READONLY, size_high, size_low, nullptr);
@@ -254,7 +254,7 @@ public:
         if (!mmap)
         {
             std::cerr << "CreateFileMapping() failed" << std::endl;
-            exit(EXIT_FAILURE);
+            std::exit(EXIT_FAILURE);
         }
 
         *mapping = (std::uint64_t)mmap;
@@ -444,7 +444,7 @@ class TBTables {
             }
         }
         std::cerr << "TB hash table size too low!" << std::endl;
-        exit(EXIT_FAILURE);
+        std::exit(EXIT_FAILURE);
     }
 
 public:
