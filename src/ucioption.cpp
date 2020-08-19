@@ -34,9 +34,9 @@ namespace UCI {
 
 /// 'On change' actions, triggered by an option's value change
 void on_clear_hash(const Option&) { Search::clear(); }
-void on_hash_size(const Option& o) { TT.resize(size_t(o)); }
+void on_hash_size(const Option& o) { TT.resize(std::size_t(o)); }
 void on_logger(const Option& o) { start_logger(o); }
-void on_threads(const Option& o) { Threads.set(size_t(o)); }
+void on_threads(const Option& o) { Threads.set(std::size_t(o)); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
 void on_use_NNUE(const Option& ) { Eval::init_NNUE(); }
 void on_eval_file(const Option& ) { Eval::init_NNUE(); }
@@ -88,7 +88,7 @@ void init(OptionsMap& o) {
 
 std::ostream& operator<<(std::ostream& os, const OptionsMap& om) {
 
-  for (size_t idx = 0; idx < om.size(); ++idx)
+  for (std::size_t idx = 0; idx < om.size(); ++idx)
       for (const auto& it : om)
           if (it.second.idx == idx)
           {
@@ -148,7 +148,7 @@ bool Option::operator==(const char* s) const {
 
 void Option::operator<<(const Option& o) {
 
-  static size_t insert_order = 0;
+  static std::size_t insert_order = 0;
 
   *this = o;
   idx = insert_order++;

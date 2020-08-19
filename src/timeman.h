@@ -34,7 +34,7 @@ public:
   TimePoint elapsed() const { return Search::Limits.npmsec ?
                                      TimePoint(Threads.nodes_searched()) : now() - startTime; }
 
-  int64_t availableNodes; // When in 'nodes as time' mode
+  std::int64_t availableNodes; // When in 'nodes as time' mode
 
 private:
   TimePoint startTime;

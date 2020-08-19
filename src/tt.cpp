@@ -34,21 +34,21 @@ TranspositionTable TT; // Our global transposition table
 void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) {
 
   // Preserve any existing move for the same position
-  if (m || (uint16_t)k != key16)
-      move16 = (uint16_t)m;
+  if (m || (std::uint16_t)k != key16)
+      move16 = (std::uint16_t)m;
 
   // Overwrite less valuable entries
-  if ((uint16_t)k != key16
+  if ((std::uint16_t)k != key16
       || d - DEPTH_OFFSET > depth8 - 4
       || b == BOUND_EXACT)
   {
       assert(d >= DEPTH_OFFSET);
 
-      key16     = (uint16_t)k;
-      value16   = (int16_t)v;
-      eval16    = (int16_t)ev;
-      genBound8 = (uint8_t)(TT.generation8 | uint8_t(pv) << 2 | b);
-      depth8    = (uint8_t)(d - DEPTH_OFFSET);
+      key16     = (std::uint16_t)k;
+      value16   = (std::int16_t)v;
+      eval16    = (std::int16_t)ev;
+      genBound8 = (std::uint8_t)(TT.generation8 | std::uint8_t(pv) << 2 | b);
+      depth8    = (std::uint8_t)(d - DEPTH_OFFSET);
   }
 }
 
@@ -57,7 +57,7 @@ void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) 
 /// measured in megabytes. Transposition table consists of a power of 2 number
 /// of clusters and each cluster consists of ClusterSize number of TTEntry.
 
-void TranspositionTable::resize(size_t mbSize) {
+void TranspositionTable::resize(std::size_t mbSize) {
 
   Threads.main()->wait_for_search_finished();
 
@@ -83,7 +83,7 @@ void TranspositionTable::clear() {
 
   std::vector<std::thread> threads;
 
-  for (size_t idx = 0; idx < Options["Threads"]; ++idx)
+  for (std::size_t idx = 0; idx < Options["Threads"]; ++idx)
   {
       threads.emplace_back([this, idx]() {
 
@@ -92,10 +92,9 @@ void TranspositionTable::clear() {
               WinProcGroup::bindThisThread(idx);
 
           // Each thread will zero its part of the hash table
-          const size_t stride = size_t(clusterCount / Options["Threads"]),
-                       start  = size_t(stride * idx),
-                       len    = idx != Options["Threads"] - 1 ?
-                                stride : clusterCount - start;
+          const std::size_t stride = std::size_t(clusterCount / Options["Threads"]),
+                            start  = std::size_t(stride * idx),
+                            len    = idx != Options["Threads"] - 1 ? stride : clusterCount - start;
 
           std::memset(&table[start], 0, len * sizeof(Cluster));
       });
@@ -116,12 +115,12 @@ void TranspositionTable::clear() {
 TTEntry* TranspositionTable::probe(const Key key, bool& found) const {
 
   TTEntry* const tte = first_entry(key);
-  const uint16_t key16 = (uint16_t)key;  // Use the low 16 bits as key inside the cluster
+  const std::uint16_t key16 = (std::uint16_t)key;  // Use the low 16 bits as key inside the cluster
 
   for (int i = 0; i < ClusterSize; ++i)
       if (!tte[i].key16 || tte[i].key16 == key16)
       {
-          tte[i].genBound8 = uint8_t(generation8 | (tte[i].genBound8 & 0x7)); // Refresh
+          tte[i].genBound8 = std::uint8_t(generation8 | (tte[i].genBound8 & 0x7)); // Refresh
 
           return found = (bool)tte[i].key16, &tte[i];
       }

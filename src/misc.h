@@ -31,9 +31,9 @@ const std::string engine_info(bool to_uci = false);
 const std::string compiler_info();
 void prefetch(void* addr);
 void start_logger(const std::string& fname);
-void* std_aligned_alloc(size_t alignment, size_t size);
+void* std_aligned_alloc(std::size_t alignment, std::size_t size);
 void std_aligned_free(void* ptr);
-void* aligned_ttmem_alloc(size_t size, void*& mem);
+void* aligned_ttmem_alloc(std::size_t size, void*& mem);
 void aligned_ttmem_free(void* mem); // nop if mem == nullptr
 
 void dbg_hit_on(bool b);
@@ -43,7 +43,7 @@ void dbg_print();
 
 typedef std::chrono::milliseconds::rep TimePoint; // A value in milliseconds
 
-static_assert(sizeof(TimePoint) == sizeof(int64_t), "TimePoint should be 64 bits");
+static_assert(sizeof(TimePoint) == sizeof(std::int64_t), "TimePoint should be 64 bits");
 
 inline TimePoint now() {
   return std::chrono::duration_cast<std::chrono::milliseconds>
@@ -52,7 +52,7 @@ inline TimePoint now() {
 
 template<class Entry, int Size>
 struct HashTable {
-  Entry* operator[](Key key) { return &table[(uint32_t)key & (Size - 1)]; }
+  Entry* operator[](Key key) { return &table[(std::uint32_t)key & (Size - 1)]; }
 
 private:
   std::vector<Entry> table = std::vector<Entry>(Size); // Allocate on the heap
@@ -83,16 +83,16 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 
 class PRNG {
 
-  uint64_t s;
+  std::uint64_t s;
 
-  uint64_t rand64() {
+  std::uint64_t rand64() {
 
     s ^= s >> 12, s ^= s << 25, s ^= s >> 27;
     return s * 2685821657736338717LL;
   }
 
 public:
-  PRNG(uint64_t seed) : s(seed) { assert(seed); }
+  PRNG(std::uint64_t seed) : s(seed) { assert(seed); }
 
   template<typename T> T rand() { return T(rand64()); }
 
@@ -102,16 +102,16 @@ public:
   { return T(rand64() & rand64() & rand64()); }
 };
 
-inline uint64_t mul_hi64(uint64_t a, uint64_t b) {
+inline std::uint64_t mul_hi64(std::uint64_t a, std::uint64_t b) {
 #if defined(__GNUC__) && defined(IS_64BIT)
     __extension__ typedef unsigned __int128 uint128;
     return ((uint128)a * (uint128)b) >> 64;
 #else
-    uint64_t aL = (uint32_t)a, aH = a >> 32;
-    uint64_t bL = (uint32_t)b, bH = b >> 32;
-    uint64_t c1 = (aL * bL) >> 32;
-    uint64_t c2 = aH * bL + c1;
-    uint64_t c3 = aL * bH + (uint32_t)c2;
+    std::uint64_t aL = (std::uint32_t)a, aH = a >> 32;
+    std::uint64_t bL = (std::uint32_t)b, bH = b >> 32;
+    std::uint64_t c1 = (aL * bL) >> 32;
+    std::uint64_t c2 = aH * bL + c1;
+    std::uint64_t c3 = aL * bH + (std::uint32_t)c2;
     return aH * bH + (c2 >> 32) + (c3 >> 32);
 #endif
 }
@@ -123,7 +123,7 @@ inline uint64_t mul_hi64(uint64_t a, uint64_t b) {
 /// Peter Österlund.
 
 namespace WinProcGroup {
-  void bindThisThread(size_t idx);
+  void bindThisThread(std::size_t idx);
 }
 
 #endif // #ifndef MISC_H_INCLUDED

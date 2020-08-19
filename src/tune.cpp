@@ -117,12 +117,12 @@ void BoolConditions::set() {
   static PRNG rng(now());
   static bool startup = true; // To workaround fishtest bench
 
-  for (size_t i = 0; i < binary.size(); i++)
+  for (std::size_t i = 0; i < binary.size(); i++)
       binary[i] = !startup && (values[i] + int(rng.rand<unsigned>() % variance) > threshold);
 
   startup = false;
 
-  for (size_t i = 0; i < binary.size(); i++)
+  for (std::size_t i = 0; i < binary.size(); i++)
       sync_cout << binary[i] << sync_endl;
 }
 

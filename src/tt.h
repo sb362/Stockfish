@@ -46,12 +46,12 @@ struct TTEntry {
 private:
   friend class TranspositionTable;
 
-  uint16_t key16;
-  uint16_t move16;
-  int16_t  value16;
-  int16_t  eval16;
-  uint8_t  genBound8;
-  uint8_t  depth8;
+  std::uint16_t key16;
+  std::uint16_t move16;
+  std::int16_t  value16;
+  std::int16_t  eval16;
+  std::uint8_t  genBound8;
+  std::uint8_t  depth8;
 };
 
 
@@ -77,7 +77,7 @@ public:
   void new_search() { generation8 += 8; } // Lower 3 bits are used by PV flag and Bound
   TTEntry* probe(const Key key, bool& found) const;
   int hashfull() const;
-  void resize(size_t mbSize);
+  void resize(std::size_t mbSize);
   void clear();
 
   TTEntry* first_entry(const Key key) const {
@@ -87,10 +87,10 @@ public:
 private:
   friend struct TTEntry;
 
-  size_t clusterCount;
+  std::size_t clusterCount;
   Cluster* table;
   void* mem;
-  uint8_t generation8; // Size must be not bigger than TTEntry::genBound8
+  std::uint8_t generation8; // Size must be not bigger than TTEntry::genBound8
 };
 
 extern TranspositionTable TT;

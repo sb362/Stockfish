@@ -329,7 +329,7 @@ inline int popcount(Bitboard b) {
 
 #ifndef USE_POPCNT
 
-  union { Bitboard bb; uint16_t u[4]; } v = { b };
+  union { Bitboard bb; std::uint16_t u[4]; } v = { b };
   return PopCnt16[v.u[0]] + PopCnt16[v.u[1]] + PopCnt16[v.u[2]] + PopCnt16[v.u[3]];
 
 #elif defined(_MSC_VER) || defined(__INTEL_COMPILER)
@@ -383,10 +383,10 @@ inline Square lsb(Bitboard b) {
   unsigned long idx;
 
   if (b & 0xffffffff) {
-      _BitScanForward(&idx, int32_t(b));
+      _BitScanForward(&idx, std::int32_t(b));
       return Square(idx);
   } else {
-      _BitScanForward(&idx, int32_t(b >> 32));
+      _BitScanForward(&idx, std::int32_t(b >> 32));
       return Square(idx + 32);
   }
 }
@@ -396,10 +396,10 @@ inline Square msb(Bitboard b) {
   unsigned long idx;
 
   if (b >> 32) {
-      _BitScanReverse(&idx, int32_t(b >> 32));
+      _BitScanReverse(&idx, std::int32_t(b >> 32));
       return Square(idx + 32);
   } else {
-      _BitScanReverse(&idx, int32_t(b));
+      _BitScanReverse(&idx, std::int32_t(b));
       return Square(idx);
   }
 }

@@ -124,7 +124,7 @@ Entry* probe(const Position& pos) {
 
   std::memset(e, 0, sizeof(Entry));
   e->key = key;
-  e->factor[WHITE] = e->factor[BLACK] = (uint8_t)SCALE_FACTOR_NORMAL;
+  e->factor[WHITE] = e->factor[BLACK] = (std::uint8_t)SCALE_FACTOR_NORMAL;
 
   Value npm_w = pos.non_pawn_material(WHITE);
   Value npm_b = pos.non_pawn_material(BLACK);
@@ -195,12 +195,12 @@ Entry* probe(const Position& pos) {
   // advantage. This catches some trivial draws like KK, KBK and KNK and gives a
   // drawish scale factor for cases such as KRKBP and KmmKm (except for KBBKN).
   if (!pos.count<PAWN>(WHITE) && npm_w - npm_b <= BishopValueMg)
-      e->factor[WHITE] = uint8_t(npm_w <  RookValueMg   ? SCALE_FACTOR_DRAW :
-                                 npm_b <= BishopValueMg ? 4 : 14);
+      e->factor[WHITE] = std::uint8_t(npm_w <  RookValueMg   ? SCALE_FACTOR_DRAW :
+                                      npm_b <= BishopValueMg ? 4 : 14);
 
   if (!pos.count<PAWN>(BLACK) && npm_b - npm_w <= BishopValueMg)
-      e->factor[BLACK] = uint8_t(npm_b <  RookValueMg   ? SCALE_FACTOR_DRAW :
-                                 npm_w <= BishopValueMg ? 4 : 14);
+      e->factor[BLACK] = std::uint8_t(npm_b <  RookValueMg   ? SCALE_FACTOR_DRAW :
+                                      npm_w <= BishopValueMg ? 4 : 14);
 
   // Evaluate the material imbalance. We use PIECE_TYPE_NONE as a place holder
   // for the bishop pair "extended piece", which allows us to be more flexible
@@ -211,7 +211,7 @@ Entry* probe(const Position& pos) {
   { pos.count<BISHOP>(BLACK) > 1, pos.count<PAWN>(BLACK), pos.count<KNIGHT>(BLACK),
     pos.count<BISHOP>(BLACK)    , pos.count<ROOK>(BLACK), pos.count<QUEEN >(BLACK) } };
 
-  e->value = int16_t((imbalance<WHITE>(pieceCount) - imbalance<BLACK>(pieceCount)) / 16);
+  e->value = std::int16_t((imbalance<WHITE>(pieceCount) - imbalance<BLACK>(pieceCount)) / 16);
   return e;
 }
 

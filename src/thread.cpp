@@ -32,7 +32,7 @@ ThreadPool Threads; // Global object
 /// Thread constructor launches the thread and waits until it goes to sleep
 /// in idle_loop(). Note that 'searching' and 'exit' should be already set.
 
-Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
+Thread::Thread(std::size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
 
   wait_for_search_finished();
 }
@@ -135,7 +135,7 @@ void Thread::idle_loop() {
 /// Created and launched threads will immediately go to sleep in idle_loop.
 /// Upon resizing, threads are recreated to allow for binding if necessary.
 
-void ThreadPool::set(size_t requested) {
+void ThreadPool::set(std::size_t requested) {
 
   if (size() > 0) { // destroy any existing thread(s)
       main()->wait_for_search_finished();
@@ -152,7 +152,7 @@ void ThreadPool::set(size_t requested) {
       clear();
 
       // Reallocate the hash with the new threadpool size
-      TT.resize(size_t(Options["Hash"]));
+      TT.resize(std::size_t(Options["Hash"]));
 
       // Init thread number dependent search params.
       Search::init();
@@ -222,7 +222,7 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
 Thread* ThreadPool::get_best_thread() const {
 
     Thread* bestThread = front();
-    std::map<Move, int64_t> votes;
+    std::map<Move, std::int64_t> votes;
     Value minScore = VALUE_NONE;
 
     // Find minimum score of all threads

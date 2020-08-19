@@ -361,10 +361,10 @@ void std_aligned_free(void* ptr) {
 
 #if defined(__linux__) && !defined(__ANDROID__)
 
-void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
+void* aligned_ttmem_alloc(std::size_t allocSize, void*& mem) {
 
-  constexpr size_t alignment = 2 * 1024 * 1024; // assumed 2MB page sizes
-  size_t size = ((allocSize + alignment - 1) / alignment) * alignment; // multiple of alignment
+  constexpr std::size_t alignment = 2 * 1024 * 1024; // assumed 2MB page sizes
+  std::size_t size = ((allocSize + alignment - 1) / alignment) * alignment; // multiple of alignment
   if (posix_memalign(&mem, alignment, size))
      mem = nullptr;
   madvise(mem, allocSize, MADV_HUGEPAGE);
@@ -373,13 +373,13 @@ void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
 
 #elif defined(_WIN64)
 
-static void* aligned_ttmem_alloc_large_pages(size_t allocSize) {
+static void* aligned_ttmem_alloc_large_pages(std::size_t allocSize) {
 
   HANDLE hProcessToken { };
   LUID luid { };
   void* mem = nullptr;
 
-  const size_t largePageSize = GetLargePageMinimum();
+  const std::size_t largePageSize = GetLargePageMinimum();
   if (!largePageSize)
       return nullptr;
 
@@ -404,7 +404,7 @@ static void* aligned_ttmem_alloc_large_pages(size_t allocSize) {
           GetLastError() == ERROR_SUCCESS)
       {
           // Round up size to full pages and allocate
-          allocSize = (allocSize + largePageSize - 1) & ~size_t(largePageSize - 1);
+          allocSize = (allocSize + largePageSize - 1) & ~std::size_t(largePageSize - 1);
           mem = VirtualAlloc(
               NULL, allocSize, MEM_RESERVE | MEM_COMMIT | MEM_LARGE_PAGES, PAGE_READWRITE);
 
@@ -418,7 +418,7 @@ static void* aligned_ttmem_alloc_large_pages(size_t allocSize) {
   return mem;
 }
 
-void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
+void* aligned_ttmem_alloc(std::size_t allocSize, void*& mem) {
 
   static bool firstCall = true;
 
@@ -445,13 +445,12 @@ void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
 
 #else
 
-void* aligned_ttmem_alloc(size_t allocSize, void*& mem) {
+void* aligned_ttmem_alloc(std::size_t allocSize, void*& mem) {
 
-  constexpr size_t alignment = 64; // assumed cache line size
-  size_t size = allocSize + alignment - 1; // allocate some extra space
+  constexpr std::size_t alignment = 64; // assumed cache line size
+  std::size_t size = allocSize + alignment - 1; // allocate some extra space
   mem = std::malloc(size);
-  void* ret = reinterpret_cast<void*>((uintptr_t(mem) + alignment - 1) & ~uintptr_t(alignment - 1));
-  return ret;
+  return reinterpret_cast<void*>((std::uintptr_t(mem) + alignment - 1) & ~std::uintptr_t(alignment - 1));
 }
 
 #endif
@@ -466,8 +465,8 @@ void aligned_ttmem_free(void* mem) {
   if (mem && !VirtualFree(mem, 0, MEM_RELEASE))
   {
       DWORD err = GetLastError();
-      std::cerr << "Failed to free transposition table. Error code: 0x" <<
-          std::hex << err << std::dec << std::endl;
+      std::cerr << "Failed to free transposition table. Error code: 0x"
+                << std::hex << err << std::dec << std::endl;
       std::exit(EXIT_FAILURE);
   }
 }
@@ -485,7 +484,7 @@ namespace WinProcGroup {
 
 #ifndef _WIN32
 
-void bindThisThread(size_t) {}
+void bindThisThread(std::size_t) {}
 
 #else
 
@@ -493,7 +492,7 @@ void bindThisThread(size_t) {}
 /// API and returns the best group id for the thread with index idx. Original
 /// code from Texel by Peter Österlund.
 
-int best_group(size_t idx) {
+int best_group(std::size_t idx) {
 
   int threads = 0;
   int nodes = 0;
@@ -562,7 +561,7 @@ int best_group(size_t idx) {
 
 /// bindThisThread() set the group affinity of the current thread
 
-void bindThisThread(size_t idx) {
+void bindThisThread(std::size_t idx) {
 
   // Use only local variables to be thread-safe
   int group = best_group(idx);

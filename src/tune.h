@@ -52,7 +52,7 @@ struct SetRange {
 /// probability that depnends on the parameter under tuning.
 
 struct BoolConditions {
-  void init(size_t size) { values.resize(size, defaultValue), binary.resize(size, 0); }
+  void init(std::size_t size) { values.resize(size, defaultValue), binary.resize(size, 0); }
   void set();
 
   std::vector<int> binary, values;
@@ -144,9 +144,9 @@ class Tune {
   }
 
   // Template specialization for arrays: recursively handle multi-dimensional arrays
-  template<typename T, size_t N, typename... Args>
+  template<typename T, std::size_t N, typename... Args>
   int add(const SetRange& range, std::string&& names, T (&value)[N], Args&&... args) {
-    for (size_t i = 0; i < N; i++)
+    for (std::size_t i = 0; i < N; i++)
         add(range, next(names, i == N - 1) + "[" + std::to_string(i) + "]", value[i]);
     return add(range, std::move(names), args...);
   }
@@ -160,7 +160,7 @@ class Tune {
   // Template specialization for BoolConditions
   template<typename... Args>
   int add(const SetRange& range, std::string&& names, BoolConditions& cond, Args&&... args) {
-    for (size_t size = cond.values.size(), i = 0; i < size; i++)
+    for (std::size_t size = cond.values.size(), i = 0; i < size; i++)
         add(cond.range, next(names, i == size - 1) + "_" + std::to_string(i), cond.values[i]);
     return add(range, std::move(names), args...);
   }

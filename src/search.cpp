@@ -59,8 +59,8 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
 
-  constexpr uint64_t TtHitAverageWindow     = 4096;
-  constexpr uint64_t TtHitAverageResolution = 1024;
+  constexpr std::uint64_t TtHitAverageWindow     = 4096;
+  constexpr std::uint64_t TtHitAverageResolution = 1024;
 
   // Razor and futility margins
   constexpr int RazorMargin = 510;
@@ -95,7 +95,7 @@ namespace {
     explicit Skill(int l) : level(l) {}
     bool enabled() const { return level < 20; }
     bool time_to_pick(Depth depth) const { return depth == 1 + level; }
-    Move pick_best(size_t multiPV);
+    Move pick_best(std::size_t multiPV);
 
     int level;
     Move best = MOVE_NONE;
@@ -161,10 +161,10 @@ namespace {
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
   template<bool Root>
-  uint64_t perft(Position& pos, Depth depth) {
+  std::uint64_t perft(Position& pos, Depth depth) {
 
     StateInfo st;
-    uint64_t cnt, nodes = 0;
+    std::uint64_t cnt, nodes = 0;
     const bool leaf = (depth == 2);
 
     for (const auto& m : MoveList<LEGAL>(pos))
@@ -326,7 +326,7 @@ void Thread::search() {
   std::copy(&lowPlyHistory[2][0], &lowPlyHistory.back().back() + 1, &lowPlyHistory[0][0]);
   std::fill(&lowPlyHistory[MAX_LPH - 2][0], &lowPlyHistory.back().back() + 1, 0);
 
-  size_t multiPV = size_t(Options["MultiPV"]);
+  std::size_t multiPV = std::size_t(Options["MultiPV"]);
 
   // Pick integer skill levels, but non-deterministically round up or down
   // such that the average integer skill corresponds to the input floating point one.
@@ -344,7 +344,7 @@ void Thread::search() {
   // When playing with strength handicap enable MultiPV search that we will
   // use behind the scenes to retrieve a set of possible moves.
   if (skill.enabled())
-      multiPV = std::max(multiPV, (size_t)4);
+      multiPV = std::max(multiPV, (std::size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
@@ -379,7 +379,7 @@ void Thread::search() {
       for (RootMove& rm : rootMoves)
           rm.previousScore = rm.score;
 
-      size_t pvFirst = 0;
+      std::size_t pvFirst = 0;
       pvLast = 0;
 
       if (!Threads.increaseDepth)
@@ -1753,7 +1753,7 @@ moves_loop: // When in check, search starts from here
   // When playing with strength handicap, choose best move among a set of RootMoves
   // using a statistical rule dependent on 'level'. Idea by Heinz van Saanen.
 
-  Move Skill::pick_best(size_t multiPV) {
+  Move Skill::pick_best(std::size_t multiPV) {
 
     const RootMoves& rootMoves = Threads.main()->rootMoves;
     static PRNG rng(now()); // PRNG sequence should be non-deterministic
@@ -1767,7 +1767,7 @@ moves_loop: // When in check, search starts from here
     // Choose best move. For each move score we add two terms, both dependent on
     // weakness. One is deterministic and bigger for weaker levels, and one is
     // random. Then we choose the move with the resulting highest score.
-    for (size_t i = 0; i < multiPV; ++i)
+    for (std::size_t i = 0; i < multiPV; ++i)
     {
         // This is our magic formula
         int push = (  weakness * int(topScore - rootMoves[i].score)
@@ -1814,7 +1814,7 @@ void MainThread::check_time() {
 
   if (   (Limits.use_time_management() && (elapsed > Time.maximum() - 10 || stopOnPonderhit))
       || (Limits.movetime && elapsed >= Limits.movetime)
-      || (Limits.nodes && Threads.nodes_searched() >= (uint64_t)Limits.nodes))
+      || (Limits.nodes && Threads.nodes_searched() >= (std::uint64_t)Limits.nodes))
       Threads.stop = true;
 }
 
@@ -1827,12 +1827,12 @@ string UCI::pv(const Position& pos, Depth depth, Value alpha, Value beta) {
   std::stringstream ss;
   TimePoint elapsed = Time.elapsed() + 1;
   const RootMoves& rootMoves = pos.this_thread()->rootMoves;
-  size_t pvIdx = pos.this_thread()->pvIdx;
-  size_t multiPV = std::min((size_t)Options["MultiPV"], rootMoves.size());
-  uint64_t nodesSearched = Threads.nodes_searched();
-  uint64_t tbHits = Threads.tb_hits() + (TB::RootInTB ? rootMoves.size() : 0);
+  std::size_t pvIdx = pos.this_thread()->pvIdx;
+  std::size_t multiPV = std::min(std::size_t(Options["MultiPV"]), rootMoves.size());
+  std::uint64_t nodesSearched = Threads.nodes_searched();
+  std::uint64_t tbHits = Threads.tb_hits() + (TB::RootInTB ? rootMoves.size() : 0);
 
-  for (size_t i = 0; i < multiPV; ++i)
+  for (std::size_t i = 0; i < multiPV; ++i)
   {
       bool updated = rootMoves[i].score != -VALUE_INFINITE;
 

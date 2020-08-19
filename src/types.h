@@ -95,8 +95,8 @@ constexpr bool Is64Bit = true;
 constexpr bool Is64Bit = false;
 #endif
 
-typedef uint64_t Key;
-typedef uint64_t Bitboard;
+typedef std::uint64_t Key;
+typedef std::uint64_t Bitboard;
 
 constexpr int MAX_MOVES = 256;
 constexpr int MAX_PLY   = 246;
@@ -271,7 +271,7 @@ enum Rank : int {
 };
 
 // unique number for each piece type on each square
-enum PieceSquare : uint32_t {
+enum PieceSquare : std::uint32_t {
   PS_NONE     =  0,
   PS_W_PAWN   =  1,
   PS_B_PAWN   =  1 * SQUARE_NB + 1,
@@ -373,12 +373,12 @@ constexpr Score make_score(int mg, int eg) {
 /// according to the standard a simple cast to short is implementation defined
 /// and so is a right shift of a signed integer.
 inline Value eg_value(Score s) {
-  union { uint16_t u; int16_t s; } eg = { uint16_t(unsigned(s + 0x8000) >> 16) };
+  union { std::uint16_t u; std::int16_t s; } eg = { std::uint16_t(unsigned(s + 0x8000) >> 16) };
   return Value(eg.s);
 }
 
 inline Value mg_value(Score s) {
-  union { uint16_t u; int16_t s; } mg = { uint16_t(unsigned(s)) };
+  union { std::uint16_t u; std::int16_t s; } mg = { std::uint16_t(unsigned(s)) };
   return Value(mg.s);
 }
 
@@ -571,7 +571,7 @@ constexpr bool is_ok(Move m) {
 }
 
 /// Based on a congruential pseudo random number generator
-constexpr Key make_key(uint64_t seed) {
+constexpr Key make_key(std::uint64_t seed) {
   return seed * 6364136223846793005ULL + 1442695040888963407ULL;
 }
 
