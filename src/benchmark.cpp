@@ -23,11 +23,9 @@
 
 #include "position.h"
 
-using namespace std;
-
 namespace {
 
-const vector<string> Defaults = {
+const std::vector<std::string> Defaults = {
   "setoption name UCI_Chess960 value false",
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10",
@@ -105,18 +103,18 @@ const vector<string> Defaults = {
 /// bench 64 1 100000 default nodes -> search default positions for 100K nodes each
 /// bench 16 1 5 default perft -> run a perft 5 on default positions
 
-vector<string> setup_bench(const Position& current, istream& is) {
+std::vector<std::string> setup_bench(const Position& current, std::istream& is) {
 
-  vector<string> fens, list;
-  string go, token;
+  std::vector<std::string> fens, list;
+  std::string go, token;
 
   // Assign default values to missing arguments
-  string ttSize    = (is >> token) ? token : "16";
-  string threads   = (is >> token) ? token : "1";
-  string limit     = (is >> token) ? token : "13";
-  string fenFile   = (is >> token) ? token : "default";
-  string limitType = (is >> token) ? token : "depth";
-  string evalType  = (is >> token) ? token : "mixed";
+  std::string ttSize    = (is >> token) ? token : "16";
+  std::string threads   = (is >> token) ? token : "1";
+  std::string limit     = (is >> token) ? token : "13";
+  std::string fenFile   = (is >> token) ? token : "default";
+  std::string limitType = (is >> token) ? token : "depth";
+  std::string evalType  = (is >> token) ? token : "mixed";
 
   go = limitType == "eval" ? "eval" : "go " + limitType + " " + limit;
 
@@ -128,13 +126,13 @@ vector<string> setup_bench(const Position& current, istream& is) {
 
   else
   {
-      string fen;
-      ifstream file(fenFile);
+      std::string fen;
+      std::ifstream file(fenFile);
 
       if (!file.is_open())
       {
-          cerr << "Unable to open file " << fenFile << endl;
-          exit(EXIT_FAILURE);
+          std::cerr << "Unable to open file " << fenFile << std::endl;
+          std::exit(EXIT_FAILURE);
       }
 
       while (getline(file, fen))
@@ -150,8 +148,8 @@ vector<string> setup_bench(const Position& current, istream& is) {
 
   size_t posCounter = 0;
 
-  for (const string& fen : fens)
-      if (fen.find("setoption") != string::npos)
+  for (const std::string& fen : fens)
+      if (fen.find("setoption") != std::string::npos)
           list.emplace_back(fen);
       else
       {
